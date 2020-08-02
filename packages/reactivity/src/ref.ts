@@ -18,6 +18,7 @@ export interface Ref<T = any> {
 
 export type ToRefs<T = any> = { [K in keyof T]: Ref<T[K]> }
 
+// 把一个object转换成reactive
 const convert = <T extends unknown>(val: T): T =>
   isObject(val) ? reactive(val) : val
 
@@ -26,6 +27,7 @@ export function isRef(r: any): r is Ref {
   return r ? r.__v_isRef === true : false
 }
 
+// 创建ref
 export function ref<T extends object>(
   value: T
 ): T extends Ref ? T : Ref<UnwrapRef<T>>
@@ -35,13 +37,16 @@ export function ref(value?: unknown) {
   return createRef(value)
 }
 
+// 创建浅对比的ref
 export function shallowRef<T>(value: T): T extends Ref ? T : Ref<T>
 export function shallowRef<T = any>(): Ref<T | undefined>
 export function shallowRef(value?: unknown) {
   return createRef(value, true)
 }
 
+// 创建ref
 function createRef(rawValue: unknown, shallow = false) {
+  // 已经是ref的直接返回
   if (isRef(rawValue)) {
     return rawValue
   }

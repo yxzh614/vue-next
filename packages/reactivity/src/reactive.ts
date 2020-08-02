@@ -46,9 +46,11 @@ const canObserve = (value: Target): boolean => {
 // only unwrap nested ref
 type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>
 
+// 创建reactive
 export function reactive<T extends object>(target: T): UnwrapNestedRefs<T>
 export function reactive(target: object) {
   // if trying to observe a readonly proxy, return the readonly version.
+  // 不能将一个readonly变成reactive
   if (target && (target as Target)[ReactiveFlags.IS_READONLY]) {
     return target
   }
@@ -63,6 +65,7 @@ export function reactive(target: object) {
 // Return a reactive-copy of the original object, where only the root level
 // properties are reactive, and does NOT unwrap refs nor recursively convert
 // returned properties.
+// 返回根节点的浅复制,复制的object是reactive的
 export function shallowReactive<T extends object>(target: T): T {
   return createReactiveObject(
     target,
@@ -120,6 +123,7 @@ export function shallowReadonly<T extends object>(
   )
 }
 
+// 将一个object升级为reactiveObject
 function createReactiveObject(
   target: Target,
   isReadonly: boolean,
@@ -127,20 +131,21 @@ function createReactiveObject(
   collectionHandlers: ProxyHandler<any>
 ) {
   if (!isObject(target)) {
+    // 只能对object升级
     if (__DEV__) {
       console.warn(`value cannot be made reactive: ${String(target)}`)
     }
     return target
   }
-  // target is already a Proxy, return it.
-  // exception: calling readonly() on a reactive object
+  // target is already a Proxy, return it. // 已经升级过了, 直接返回
+  // exception: calling readonly() on a reactive object // 例外: 把reactive变成只读
   if (
     target[ReactiveFlags.RAW] &&
     !(isReadonly && target[ReactiveFlags.IS_REACTIVE])
   ) {
     return target
   }
-  // target already has corresponding Proxy
+  // target already has corresponding Proxy ?
   const reactiveFlag = isReadonly
     ? ReactiveFlags.READONLY
     : ReactiveFlags.REACTIVE

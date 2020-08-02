@@ -1,0 +1,60 @@
+<script src="../../dist/vue.global.js"></script>
+
+<div id="demo">
+  <h1>Latest Vue.js Commits</h1>
+  <button @click="handleRefDataChange()">123</button>
+  Ref{{JSON.stringify(refData)}}
+  <br/>
+  <button @click="handleReactDataChange()">222</button>
+  Ref{{JSON.stringify(reactData)}}
+
+</div>
+
+<script>
+  const {
+    createApp,
+    ref,
+    watchEffect,
+    reactive
+  } = Vue
+
+  function grabRefData() {
+    var refData = ref({
+      a: 123,
+      b: 1234
+    })
+    var handleRefDataChange = () => {
+      refData.value.a = {
+        a: 12344
+      }
+    }
+    return {
+      refData,
+      handleRefDataChange
+    }
+  }
+  function grabReactData() {
+    var reactData = reactive({
+      a: 123
+    })
+    var handleReactDataChange = () => {
+      reactData.a = Math.random()
+    }
+    return {
+      reactData,
+      handleReactDataChange
+    }
+  }
+
+  createApp({
+    setup() {
+      return {
+        ...grabRefData(),
+        ...grabReactData()
+      }
+    }
+  }).mount('#demo')
+</script>
+
+<style>
+</style>
